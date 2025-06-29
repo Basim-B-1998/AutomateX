@@ -39,7 +39,7 @@ await consumer.run({
     partition : partition,
     offset : message.offset + 1
   }])
-    },
+    }
   })
 }
 
