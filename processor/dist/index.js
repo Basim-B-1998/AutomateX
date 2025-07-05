@@ -34,6 +34,7 @@ function main() {
                     value: r.zapRunId
                 }))
             });
+            //deletes values that had send
             yield client.zapRunOutbox.deleteMany({
                 where: {
                     id: {
@@ -44,5 +45,4 @@ function main() {
         }
     });
 }
-
 main();

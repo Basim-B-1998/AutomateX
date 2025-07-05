@@ -42,7 +42,7 @@ function main() {
                         partition: partition,
                         offset: message.offset + 1
                     }]);
-            }),
+            })
         });
     });
 }
