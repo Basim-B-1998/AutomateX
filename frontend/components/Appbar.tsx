@@ -4,9 +4,9 @@ import { LinkButton } from "./buttons/LinkButton"
 import { PrimaryButton } from "./buttons/PrimaryButton"
 
 export const Appbar = () => {
-  const router = useRouter
+  const router = useRouter()
     return <div className="flex border-b justify-between">
-      <div className="flex flex-col justify-center p-4">
+      <div className="flex flex-col justify-center text-2xl pl-8 font-bold">
         Zapier
       </div>
       <div className="flex">
