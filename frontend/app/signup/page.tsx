@@ -1,16 +1,26 @@
 "use client";
 
 import { Appbar } from "@/components/Appbar"
+import { PrimaryButton } from "@/components/buttons/PrimaryButton";
 import { CheckFeature } from "@/components/CheckFeature"
 import { Input } from "@/components/Input"
+import { useState } from "react";
+import { BACKEND_URL } from "../config";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
 export default function signup(){
+  const router = useRouter()
+  const [name,setName] = useState("")
+  const [email,setEmail] = useState("")
+  const [password,setPassword] = useState("")
   return <div>
     <Appbar/>
-  <div className="px-50 flex">
+  <div className="flex justify-center">
+  <div className="px-20 flex max-w-7xl">
     <div className="flex-1">
       <div className="flex justify-center">
-      <div className="text-3xl font-semibold mt-35 px-7">
+      <div className="text-3xl font-semibold mt-35 px-5">
         AI Automation starts and scales with Zapier
       </div>
     </div>
@@ -33,13 +43,23 @@ export default function signup(){
         </div>
       </div>
   </div>
-    <div className="flex-1 mt-50 ml-15 font-medium">
-      <Input label={"Work email"} onChange={e => console.log(e.target.value)} type="text" placeholder="" />
-      <div className="flex gap-4 mt-4">
-      <Input label={"First name"} onChange={e =>  console.log(e.target.value)} type="text" placeholder="" />
-      <Input label={"Last name"} onChange={e =>  console.log(e.target.value)} type="password" placeholder="" />
+    <div className="flex-1 mt-33 ml-15 font-medium pt-12 pb-12 px-5 border rounded space-y-4">
+        <Input label={"Name"} onChange={e => {setName(e.target.value)}} type="text" placeholder="" />
+        <Input label={"Email"} onChange={e =>  {setEmail(e.target.value)}} type="text" placeholder="" />
+        <Input label={"Password"} onChange={e =>  {setPassword(e.target.value)}} type="password" placeholder="" />
+      <div className="pt-4 w-[410px] ml-10">
+      <PrimaryButton onClick={ async ()=>{
+          const res = await axios.post(`${BACKEND_URL}/api/v1/user/signup`,{
+            username: email,
+            password,
+            name
+          })
+        console.log(res.data.message); 
+        router.push("/login")
+      }} size="big">Get started for free</PrimaryButton>
       </div>
     </div>
+  </div>
   </div>
   </div>
 }
