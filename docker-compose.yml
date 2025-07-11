@@ -1,0 +1,43 @@
+version: '3.9'
+
+services:
+  db_primary:
+    image: postgres:15
+    container_name: db_primary
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: zap_primary
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_primary_data:/var/lib/postgresql/data
+
+  db_hooks:
+    image: postgres:15
+    container_name: db_hooks
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: zap_hooks
+    ports:
+      - "5433:5432"
+    volumes:
+      - db_hooks_data:/var/lib/postgresql/data
+
+  db_processor:
+    image: postgres:15
+    container_name: db_processor
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: zap_processor
+    ports:
+      - "5434:5432"
+    volumes:
+      - db_processor_data:/var/lib/postgresql/data
+
+volumes:
+  db_primary_data:
+  db_hooks_data:
+  db_processor_data:
