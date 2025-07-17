@@ -28,6 +28,7 @@ app.post("/hooks/catch/:userId/:zapId", (req, res) => __awaiter(void 0, void 0, 
     // store in db a new trigger
     yield client.$transaction((tx) => __awaiter(void 0, void 0, void 0, function* () {
         console.log("reached here 2");
+        // Create ZapRun
         const run = yield tx.zapRun.create({
             data: {
                 zapId: zapId,
@@ -35,6 +36,7 @@ app.post("/hooks/catch/:userId/:zapId", (req, res) => __awaiter(void 0, void 0, 
             }
         });
         console.log("reached here 3");
+        // Create ZapRunOutbox
         yield tx.zapRunOutbox.create({
             data: {
                 zapRunId: run.id

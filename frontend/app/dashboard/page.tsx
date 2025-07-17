@@ -4,7 +4,7 @@ import { Appbar } from "@/components/Appbar";
 import { DarkButton } from "@/components/buttons/DarkButton";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { BACKEND_URL } from "../config";
+import { BACKEND_URL, HOOKS_URL } from "../config";
 import {
   Table,
   TableBody,
@@ -14,35 +14,36 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation" 
+import { LinkButton } from "@/components/buttons/LinkButton";
 
 
 interface Zap {
-  "id":string,
-  "triggerId":string,
-  "userId":number,
-  "actions": {
-        "id":string,
-        "zapId":string,
-        "actionId":string,
-        "sortingOrder":number,
-        "type": {
-           "id":string,
-           "name":string
-        }
-    }[],
+  id: string;
+  triggerId: string;
+  action: {
+    id: string;
+    zapId: string;
+    actionId: string;
+    sortingOrder: number;
+    type: {
+      id: string;
+      name: string;
+      image: string;
+    };
+  }[];
+  trigger: {
+    id: string;
+    zapId: string;
+    triggerId: string;
+    type: {
+      id: string;
+      name: string;
+      image: string;
+    };
+  } | null;
+}
 
-    "trigger": {
-    "id": string,
-    "zapId": string,
-    "triggerId": string,
-    "type": {
-    "id": string,
-    "name": string
-  }
-}
-}
 
 
 function useZaps(){
@@ -68,6 +69,7 @@ function useZaps(){
 
 export default function (){
   const {loading, zaps}=useZaps()
+  const router=useRouter()
 
   return <div>
     <Appbar/>
@@ -76,10 +78,10 @@ export default function (){
         <div className="text-2xl font-bold">
           My Zaps
         </div>
-        <DarkButton onClick={()=>{}}>Create</DarkButton>
+        <DarkButton onClick={()=>{router.push("/zap/create")}}>Create</DarkButton>
       </div>
       </div>
-    {loading ? "Loading..." : <ZapTable zaps={zaps}/>}
+    {loading ? "Loading..." : <div className="flex justify-center"><ZapTable zaps={zaps}/></div>}
   </div>
 }
 
@@ -88,35 +90,47 @@ function ZapTable({ zaps }: {zaps: Zap[]}) {
 const router = useRouter()
 
   return (
+    <div className="p-8 max-w-screen-xl">
     <Table>
       <TableHeader>
         <TableRow>
           <TableHead className="w-[300px]">Name</TableHead>
-          <TableHead>Last Edit</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead className="text-right">Go</TableHead>
+          <TableHead className="w-[100px]">ID</TableHead>
+          <TableHead className="w-[200px]">Created at</TableHead>
+          <TableHead className="w-[100px]">Webhook Url</TableHead>
+          <TableHead className="w-[100px]">Go</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {zaps.map((z) => (
           <TableRow key={z.id}>
-            <TableCell className="font-medium">
-              {z.trigger.type.name}{" "}
-              {z.actions.map((x) => x.type.name).join(" ")}
+            <TableCell className="flex gap-2">
+                   {[z.trigger?.type, ...(z.action ?? []).map(x => x.type)]
+                    .filter(Boolean)
+                    .map((t, index) => (
+                      <img
+                        key={index}
+                        src={t.image}
+                        alt={t.name}
+                        className="w-6 h-6 rounded"
+                      />
+                    ))}
             </TableCell>
             <TableCell>{z.id}</TableCell>
             <TableCell>Nov 13, 2023</TableCell>
-            <TableCell className="text-right">
-              <Button
+            <TableCell>{`${HOOKS_URL}/hooks/catch/1/${z.id}`}</TableCell>
+            <TableCell>
+              <LinkButton
                 variant="outline"
                 onClick={() => router.push("/zap/" + z.id)}
               >
                 Go
-              </Button>
+              </LinkButton>
             </TableCell>
           </TableRow>
         ))}
       </TableBody>
     </Table>
+    </div>
   );
 }

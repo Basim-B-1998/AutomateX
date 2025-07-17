@@ -30,7 +30,7 @@ router.post("/", middleware_1.authMiddleware, (req, res) => __awaiter(void 0, vo
         //create zap with random triggerId
         const zap = yield db_1.prismaClient.zap.create({
             data: {
-                userId: id,
+                // userId: id,
                 triggerId: "",
                 action: {
                     create: parsedData.data.actions.map((x, index) => ({
@@ -68,7 +68,7 @@ router.get("/", middleware_1.authMiddleware, (req, res) => __awaiter(void 0, voi
     const id = req.id;
     const zaps = yield db_1.prismaClient.zap.findMany({
         where: {
-            userId: id
+        // userId : id
         },
         include: {
             action: {
@@ -94,7 +94,7 @@ router.get("/:zapId", middleware_1.authMiddleware, (req, res) => __awaiter(void 
     const zap = yield db_1.prismaClient.zap.findFirst({
         where: {
             id: zapId,
-            userId: id
+            // userId : id
         },
         include: {
             action: {
