@@ -15,6 +15,7 @@ import {
 import axios from "axios"
 import { BACKEND_URL } from "@/app/config"
 import { useRouter } from "next/navigation"
+import { Input } from "@/components/Input"
 
 
 // Hook to load available triggers and actions
@@ -48,6 +49,7 @@ export default function ZapCreatePage(){
   index:number;
   availableActionId: string;
   availableActionName: string;
+  metadata: any
   }[]>([])
  const [selectedModalIndex,setSelectedModalIndex] = useState<null | number>(null)
  
@@ -64,7 +66,7 @@ export default function ZapCreatePage(){
             "triggerMetadata": {},
             "actions": selectedActions.map(a => ({
               availableActionId: a.availableActionId,
-              actionMetadata: {}
+              actionMetadata: a.metadata
             }))
           },{
             headers: {
@@ -89,7 +91,8 @@ export default function ZapCreatePage(){
           setSelectedActions(a => [...a, {
             index: a.length+2,
             availableActionId:"",
-            availableActionName:""
+            availableActionName:"",
+            metadata: {}
             }])
         }}><div className="text-2xl">
           +
@@ -98,7 +101,7 @@ export default function ZapCreatePage(){
       </div>
     </div>
     {selectedModalIndex !== null && (
-     <Modal index={selectedModalIndex}  open={true}  onOpenChange={(open) => { if (!open) setSelectedModalIndex(null);}} availableItems={selectedModalIndex === 1 ? availableTriggers : availableActions}   onSelect={({ id, name ,image  }) => {
+     <Modal index={selectedModalIndex}  open={true}  onOpenChange={(open) => { if (!open) setSelectedModalIndex(null);}} availableItems={selectedModalIndex === 1 ? availableTriggers : availableActions}   onSelect={({ id, name ,image ,metadata }) => {
       if (selectedModalIndex === 1) {
         setSelectedTrigger({ id, name, image }); //  Trigger update
       } else {
@@ -109,6 +112,7 @@ export default function ZapCreatePage(){
                   ...a,
                   availableActionId: id,
                   availableActionName: name,
+                  metadata: metadata
                 }
               : a
           )
@@ -120,8 +124,15 @@ export default function ZapCreatePage(){
 }
 
 
-function Modal({ index,open,onOpenChange,availableItems,onSelect } : {index: number; open: boolean; onOpenChange: (open: boolean) => void; availableItems: {id:string, name:string, image:string}[]; onSelect: (item: { id: string; name: string;image: string }) => void;}){
-  
+function Modal({ index,open,onOpenChange,availableItems,onSelect } : {index: number; open: boolean; onOpenChange: (open: boolean) => void; availableItems: {id:string, name:string, image:string}[]; onSelect: (item: { id: string; name: string;image: string;metadata:any }) => void;}){
+  const [step,setStep] = useState(0)
+  const [selectedAction,setSelectedAction] = useState<{
+    id : string;
+    name : string;
+  }>()
+  const isTrigger = index === 1;
+
+
    return  (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
@@ -131,18 +142,82 @@ function Modal({ index,open,onOpenChange,availableItems,onSelect } : {index: num
               Select a {index === 1 ? "trigger" : "action"} to continue configuring your zap.
           </DialogDescription>
         </DialogHeader>
-           <div className="p-4 md:p-5 space-y-4">
+         {/* selectedAction?.id same as id in availableAction */}
+        {(step === 1 && selectedAction?.id === "email" &&  <EmailSelector setMetadata={(metadata) => {
+          onSelect({
+            ...selectedAction,
+            metadata
+          })
+        }}/>)}
+
+        {(step === 1 && selectedAction?.id === "send_sol" &&   <SolanaSelector setMetadata={(metadata) => {
+          onSelect({
+            ...selectedAction,
+            metadata
+          })
+        }}/>)}
+
+        {step === 0 &&     <div className="p-4 md:p-5 space-y-4">
           {availableItems.map(({ id, name, image }) => (
             <div key={id} className="flex border p-2 items-center space-x-2 rounded cursor-pointer hover:bg-slate-100"   onClick={() => {
-                onSelect({ id, name , image }); //  set selected trigger or action
-                onOpenChange(false); // close modal
+                if (isTrigger){
+                  onSelect({ id,
+                             name ,
+                             image,
+                            metadata: {} }); //  set selected trigger or action
+                   onOpenChange(false); // close modal
+                } else {
+                  setStep(s => s + 1)
+                  setSelectedAction({
+                    id,
+                     name 
+                  })
+                }
+                
               }}>
               <img src={image} width={30} height={30} alt={name} className="rounded" />
               <div>{name}</div>
             </div>
           ))}
-        </div>
+        </div>}
+
+        
       </DialogContent>
     </Dialog>
   )
+}
+
+
+function EmailSelector({setMetadata} : {setMetadata: (params : any)=> void}) {
+
+  const [email,setEmail] = useState("")
+  const [body,setBody] = useState("")
+ 
+  return <div className="space-y-2">
+     <Input  label={"To"} type={"text"} placeholder="To" onChange={(e) => setEmail(e.target.value)}></Input>
+     <Input  label={"Body"} type={"text"} placeholder="Body" onChange={(e) => setBody (e.target.value)}></Input>
+      <PrimaryButton onClick={()=>{
+        setMetadata({
+          email,
+          body
+        })
+    }}>Submit</PrimaryButton>
+  </div>
+}
+
+function SolanaSelector({setMetadata} : {setMetadata: (params : any)=> void}) {
+
+  const [amount,setAmount] = useState("")
+  const [address,setAddress] = useState("")
+
+  return <div className="space-y-2"> 
+    <Input  label={"To"} type={"text"} placeholder="To" onChange={(e) => setAddress(e.target.value)}></Input>
+    <Input  label={"Amount"} type={"text"} placeholder="To" onChange={(e) => setAmount(e.target.value)}></Input>
+    <PrimaryButton onClick={()=>{
+        setMetadata({
+          amount,
+          address
+        })
+    }}>Submit</PrimaryButton>
+    </div>
 }

@@ -11,6 +11,18 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "kafkajs": "^2.2.4"
+    "@prisma/client": "^6.12.0",
+    "@solana/web3.js": "^1.98.2",
+    "bs58": "^6.0.0",
+    "dotenv": "^17.2.0",
+    "kafkajs": "^2.2.4",
+    "node-schedule": "^2.1.1",
+    "nodemailer": "^7.0.5"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.15",
+    "@types/nodemailer": "^6.4.17",
+    "prisma": "^6.12.0",
+    "ts-node": "^10.9.2"
   }
 }

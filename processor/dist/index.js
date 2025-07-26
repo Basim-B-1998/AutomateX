@@ -27,21 +27,25 @@ function main() {
                 where: {},
                 take: 10
             });
+            console.log(pendingRows);
             //send the entries to kafka
             producer.send({
                 topic: TOPIC_NAME,
-                messages: pendingRows.map(r => ({
-                    value: r.zapRunId
-                }))
+                messages: pendingRows.map(r => {
+                    return {
+                        value: JSON.stringify({ zapRunId: r.zapRunId, stage: 0 })
+                    };
+                })
             });
             //deletes values that had send
             yield client.zapRunOutbox.deleteMany({
                 where: {
                     id: {
-                        in: pendingRows.map(r => r.id)
+                        in: pendingRows.map(x => x.id)
                     }
                 }
             });
+            yield new Promise(r => setTimeout(r, 3000));
         }
     });
 }
